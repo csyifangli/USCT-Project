@@ -1,3 +1,23 @@
+%% Impedance Matching Calculations
+% Author:   Morgan Roberts
+% Date:     12/10/18
+% 
+% DESCRIPTION:
+%     A script that chooses the component values needed to build a step-up
+%     conjugate-matching network for a transducer at a single design 
+%     frequency under steady state excitation. The Maximum Power Transfer
+%     Theorem is used [1], along with matching networks based on filter
+%     structures for high frequency ultrasound transducers [2].
+% 
+% REFERRENCES:
+%     [1] Moura, L., & Darwazeh, I. (2005). Sinusoidal AC electrical 
+%     analysis. In Introduction to Linear Circuit Analysis and Modelling: 
+%     From DC to RF pp. 54–65). Elsevier.
+%     [2] Moon, J. Y., Lee, J., & Chang, J. H. (2016). Electrical 
+%     impedance matching networks based on filter structures for high 
+%     frequency ultrasound transducers. Sensors and Actuators, A: Physical,
+%     251, 225–233. https://doi.org/10.1016/j.sna.2016.10.025
+
 close all
 Zt = 5.9996 - 5.9771j; % Measured impedance of transducer
 Zg = 50 + 0j;           % Impedance of Signal Generator
