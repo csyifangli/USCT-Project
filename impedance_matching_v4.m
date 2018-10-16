@@ -143,17 +143,37 @@ hold off
 % We repeat by plotting the Generator Voltage and Current waveforms for 
 % the unmatched arrangement to verify that the phase offset is zero.
 
+% Set both y-axis colours to black.
 fig2 = figure(2);
-left_color = [0 0 0];
-right_color = [0 0 0];
 set(fig2,'defaultAxesColorOrder',[left_color; right_color]);
+
+% Voltage data on left y-axis.
 yyaxis left
-plot(t,vs,'k'); ylabel('Volts [V]'); ylim([-max([vs vg])*1.2 max([vs vg])*1.2]);
-yyaxis right
 hold on
-plot(t,is,'k--'); ylim([-max([is ig])*1.2 max([is ig])*1.2]);
-ylabel('Current [A]'); legend('Source Voltage v_s(t)','Source Current i_s(t)'); 
-xlabel('Time [s]'); title('Source v_s(t) and i_s(t) for conjugate-matched Thevenin equivalent circuit');
+h3 = plot(t, vs, 'k'); 
+ylabel('Volts [V]'); 
+ylim([- max([vs, vg]) * 1.2, max([vs, vg]) * 1.2]);
+
+% Finding and plotting peak to mark the 'Voltage Source' Voltage amplitude. 
+[pkvs, tvs] = findpeaks(vs);
+stem(t(tvs(1)), pkvs(1), 'k-');
+
+% Current data on right y-axis.
+yyaxis right
+h4 = plot(t, is ,'k--');
+ylabel('Current [A]');
+ylim([- max([is, ig]) * 1.2, max([is, ig]) * 1.2]); 
+
+% Finding and plotting peak to mark the Generator Current amplitude. 
+[pkis,tis] = findpeaks(is);
+stem(t(tis(1)), pkis(1), 'k--')
+
+% Adding labels, title, and legend.
+xlabel('Time [s]'); 
+title(['Source v_s(t) and i_s(t) for conjugate-matched Thevenin '...
+                                                    'equivalent circuit']);
+legend([h3, h4], {'Source Voltage v_s(t)','Source Current i_s(t)'});
+hold off
 
 
 
