@@ -127,7 +127,7 @@ stem(t(tvg(1)), pkvg(1), 'k-');
 % Annotating to highlight phase offset.
 text(t(tvg(1)), pkvg(1), sprintf('Phase offset = %.2f rad     ', ...
                   - angle(GENERATOR_IMPEDANCE + TRANSDUCER_IMPEDANCE)), ...
-                                           'HorizontalAlignment','right');
+                                           'HorizontalAlignment', 'right');
 annotation('arrow', [0.4, 0.5], [0.8, 0.6]);
                                        
 % Current data on right y-axis.
@@ -179,10 +179,9 @@ xlabel('Time [s]');
 title(['Source v_s(t) and i_s(t) for conjugate-matched Thevenin '...
                                                     'equivalent circuit']);
 legend([h3, h4], {'Source Voltage v_s(t)','Source Current i_s(t)'});
+
+% Annotating to highlight phase offset.
+text(t(tis(1)), pkis(1), '        Phase offset removed', ...
+                                            'HorizontalAlignment', 'left');
+annotation('arrow', [0.35, 0.25], [0.8, 0.65]);
 hold off
-
-
-
-
-
-
