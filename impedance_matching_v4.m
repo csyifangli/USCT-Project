@@ -124,6 +124,12 @@ ylim([- max([vs, vg]) * 1.2, max([vs, vg]) * 1.2]);
 [pkvg, tvg] = findpeaks(vg);
 stem(t(tvg(1)), pkvg(1), 'k-');
 
+% Annotating to highlight phase offset.
+text(t(tvg(1)), pkvg(1), sprintf('Phase offset = %.2f rad     ', ...
+                  - angle(GENERATOR_IMPEDANCE + TRANSDUCER_IMPEDANCE)), ...
+                                           'HorizontalAlignment','right');
+annotation('arrow', [0.4, 0.5], [0.8, 0.6]);
+                                       
 % Current data on right y-axis.
 yyaxis right
 h2 = plot(t,ig,'k--');
@@ -131,7 +137,7 @@ ylabel('Current [A]');
 ylim([- max([is, ig]) * 1.2, max([is, ig]) * 1.2]); 
 
 % Finding and plotting peak to mark the Generator Current amplitude. 
-[pkig,tig] = findpeaks(ig);
+[pkig, tig] = findpeaks(ig);
 stem(t(tig(1)), pkig(1), 'k--')
 
 % Adding labels, title, and legend.
@@ -165,7 +171,7 @@ ylabel('Current [A]');
 ylim([- max([is, ig]) * 1.2, max([is, ig]) * 1.2]); 
 
 % Finding and plotting peak to mark the Generator Current amplitude. 
-[pkis,tis] = findpeaks(is);
+[pkis, tis] = findpeaks(is);
 stem(t(tis(1)), pkis(1), 'k--')
 
 % Adding labels, title, and legend.
