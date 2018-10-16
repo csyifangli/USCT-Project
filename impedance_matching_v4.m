@@ -1,11 +1,12 @@
 close all
 Zt = 5.9996 - 5.9771j; % Measured impedance of transducer
 Zg = 50 + 0j;           % Impedance of Signal Generator
-f = 1e6; w = 2*pi*f;    % Frequency 
+f = 1e6; 
+w = 2*pi*f;    % Frequency 
 Vg = 50;                % Signal generator amplitude
 theta = 1.6;              % Signal generator phase shift
 t = 0:1e-8:2e-6;        % Time data
-vg = real(Vg*exp(j*(w*t - theta))); % Signal generator waveform
+vg = real(Vg * exp(j * (w * t - theta))); % Signal generator waveform
 
 %%
 % First, we will analyse the case when the transducer is directly connected to the
