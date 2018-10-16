@@ -8,6 +8,9 @@
 %     frequency under steady state excitation. The Maximum Power Transfer
 %     Theorem is used [1], along with matching networks based on filter
 %     structures for high frequency ultrasound transducers [2].
+%     The script calculates the average power delivered by the load in the
+%     matched and unmatched case, and plots the Voltage and Current
+%     waveforms in each case to analyse the phase behaviour.
 % 
 % REFERRENCES:
 %     [1] Moura, L., & Darwazeh, I. (2005). Sinusoidal AC electrical 
