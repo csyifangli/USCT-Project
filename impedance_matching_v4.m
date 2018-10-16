@@ -17,27 +17,33 @@
 %     impedance matching networks based on filter structures for high 
 %     frequency ultrasound transducers. Sensors and Actuators, A: Physical,
 %     251, 225–233. https://doi.org/10.1016/j.sna.2016.10.025
+%
+%% Section 1: Defining Parameters.
 
 close all
-Zt = 5.9996 - 5.9771j; % Measured impedance of transducer
-Zg = 50 + 0j;           % Impedance of Signal Generator
-f = 1e6; 
-w = 2*pi*f;    % Frequency 
-Vg = 50;                % Signal generator amplitude
-theta = 1.6;              % Signal generator phase shift
-t = 0:1e-8:2e-6;        % Time data
-vg = real(Vg * exp(j * (w * t - theta))); % Signal generator waveform
+TRANSDUCER_IMPEDANCE = 5.9996 - 5.9771j;   % [ohms]
+GENERATOR_IMPEDANCE  = 50 + 0j;            % [ohms]
+FREQUENCY            = 1e6;                % [Hz]
+ANGULAR_FREQUENCY    = 2 * pi * FREQUENCY; % [rad/s] 
+GENERATOR_AMPLITUDE  = 50;                 % [V]
+GENERATOR_PHASE      = 0;                  % [rad]
 
-%%
+%% Section 2: Generating time series and sig. gen. voltage waveforms.
+
+t  = 0:1e-8:2e-6;        % Time data
+vg = real(GENERATOR_AMPLITUDE * exp(1j * (ANGULAR_FREQUENCY * t - ...
+                                                        GENERATOR_PHASE)));
+
+%% Section 3: Performance for direct connection (no matching network)
 % First, we will analyse the case when the transducer is directly connected to the
 % source, determine whether the load voltages and current are in phae, 
 % and calculate the maximum average power delivered to the load.
 
 %vt = real(max(vg)*abs(Zt/(Zg + Zt))*exp(j*(w*t + angle(Zt/(Zg + Zt))))); % Transducer voltage vt(t)
-ig = real((max(vg)/abs(Zg + Zt))*exp(j*(w*t - theta - angle(Zg + Zt))));         % Transducer current it(t)
+ig = real((max(vg)/abs(GENERATOR_IMPEDANCE + TRANSDUCER_IMPEDANCE))*exp(j*(ANGULAR_FREQUENCY*t - GENERATOR_PHASE - angle(GENERATOR_IMPEDANCE + TRANSDUCER_IMPEDANCE))));         % Transducer current it(t)
 
-Rt = real(Zt); Xt = imag(Zt); % Resistive and Reactive components of transducer impedance
-Rg = real(Zg); Xg = imag(Zg); % Resistive and Reactive components of signal generator impedance
+Rt = real(TRANSDUCER_IMPEDANCE); Xt = imag(TRANSDUCER_IMPEDANCE); % Resistive and Reactive components of transducer impedance
+Rg = real(GENERATOR_IMPEDANCE); Xg = imag(GENERATOR_IMPEDANCE); % Resistive and Reactive components of signal generator impedance
 Pt = (Vg^2/2)*Rt/((Rg + Rt)^2 + (Xg + Xt)^2); % Average power delivered to transducer
 
 %%
@@ -49,11 +55,11 @@ Pt = (Vg^2/2)*Rt/((Rg + Rt)^2 + (Xg + Xt)^2); % Average power delivered to trans
 % determine the Thevenin equivalent circuit for this 'Voltage Source'.
 % We need to derive values of C and L for which Zs = Zt*.
 
-C = sqrt((Rg - Rt)/(Rt*Rg^2*w^2));
-L = (Rg^2*w*C - Xt*(Rg^2*w^2*C^2 +  1))/(w + Rg^2*w^3*C^2);
+C = sqrt((Rg - Rt)/(Rt*Rg^2*ANGULAR_FREQUENCY^2));
+L = (Rg^2*ANGULAR_FREQUENCY*C - Xt*(Rg^2*ANGULAR_FREQUENCY^2*C^2 +  1))/(ANGULAR_FREQUENCY + Rg^2*ANGULAR_FREQUENCY^3*C^2);
 
-Zc = 1/(j*w*C); % Matching capacitor impedance
-Zl = j*w*L;     % Matching inductor impedance
+Zc = 1/(j*ANGULAR_FREQUENCY*C); % Matching capacitor impedance
+Zl = j*ANGULAR_FREQUENCY*L;     % Matching inductor impedance
 
 Zs = Zl + (Rg*Zc)/(Rg + Zc); % 'Voltage source' Impedance (Thevenin equivalent)
 Rs = real(Zs); Xs = imag(Zs); % Resistive and Reactive components of 'Voltage source' impedance
@@ -66,9 +72,9 @@ Rs = real(Zs); Xs = imag(Zs); % Resistive and Reactive components of 'Voltage so
 % we will determine the phase difference between the voltage and the
 % current, and calculate the maximum average power delivered to the load.
 
-vs = real(Vg*abs(Zc/(Rg + Zc))*exp(j*(w*t - theta + angle(Zc/(Rg + Zc)))));
+vs = real(Vg*abs(Zc/(Rg + Zc))*exp(j*(ANGULAR_FREQUENCY*t - GENERATOR_PHASE + angle(Zc/(Rg + Zc)))));
 Vs = max(vs);
-is = real((Vg*abs(Zc/(Rg + Zc))/abs(Zs + Zt))*exp(j*(w*t - theta + angle(Zc/(Rg + Zc)) - angle(Zs + Zt))));
+is = real((Vg*abs(Zc/(Rg + Zc))/abs(Zs + TRANSDUCER_IMPEDANCE))*exp(j*(ANGULAR_FREQUENCY*t - GENERATOR_PHASE + angle(Zc/(Rg + Zc)) - angle(Zs + TRANSDUCER_IMPEDANCE))));
 
 fig1 = figure(1);
 left_color = [0 0 0];
@@ -103,7 +109,7 @@ ylabel('Current [A]'); legend('Source Voltage v_s(t)','Source Current i_s(t)');
 xlabel('Time [s]'); title('Source v_s(t) and i_s(t) for conjugate-matched Thevenin equivalent circuit');
 Ptmatch = (Vs^2/2)*Rt/((Rs + Rt)^2 + (Xs + Xt)^2); % Average power delivered to transducer
 
-fprintf('Unmatched current phase angle =  %.2f radians.\n',-angle(Zg + Zt));
+fprintf('Unmatched current phase angle =  %.2f radians.\n',-angle(GENERATOR_IMPEDANCE + TRANSDUCER_IMPEDANCE));
 fprintf('Unmatched average power delivered = %.3f watts.\n',Pt);
 fprintf('Conjugate matched average power delivered = %.3f watts.\n',Ptmatch);
 
