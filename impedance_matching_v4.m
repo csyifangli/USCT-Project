@@ -89,8 +89,6 @@ Vs = GENERATOR_AMPLITUDE * abs(ZC / (Rg + ZC));
 vs = real(Vs * exp(1j * (w * t - GENERATOR_PHASE + angle(ZC / ...
                                                              (Rg + ZC)))));
 
-%Vs = max(vs)
-
 %% Section 5: Performance for conjugate-matched network.
 
 % Calculate average power delivered by generator for direct connection
