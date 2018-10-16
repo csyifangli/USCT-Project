@@ -4,7 +4,7 @@
 % 
 % DESCRIPTION:
 %     A script that chooses the component values needed to build a step-up
-%     conjugate-matching network for a transducer at a single design 
+%     conjugate-matched L-C network for a transducer at a single design 
 %     frequency under steady state excitation. The Maximum Power Transfer
 %     Theorem is used [1], along with matching networks based on filter
 %     structures for high frequency ultrasound transducers [2].
@@ -52,35 +52,41 @@ Xg = imag(GENERATOR_IMPEDANCE);
 Pt = (GENERATOR_AMPLITUDE^2 / 2) * Rt / ((Rg + Rt)^2 + (Xg + Xt)^2);
 fprintf('Unmatched average power delivered = %.3f watts.\n',Pt);
 
-%%
-% Next, we introduce a matching network to maximise the power delivered to
-% the transducer by bringing the transducer current in phase with the
-% voltage.
-% We can model the combination of the signal generator and the matching
-% network as a 'voltage source'. Using source transformations, we can
-% determine the Thevenin equivalent circuit for this 'Voltage Source'.
-% We need to derive values of C and L for which Zs = Zt*.
+%% Section 4: Designing the conjugate-matched network
 
-C = sqrt((Rg - Rt)/(Rt*Rg^2*w^2));
-L = (Rg^2*w*C - Xt*(Rg^2*w^2*C^2 +  1))/(w + Rg^2*w^3*C^2);
+% We model the combination of the signal generator and the L-C matching
+% network as a 'Voltage Source'. 
+% Using source transformations, we determine the Thevenin equivalent 
+% Voltage, vs(t), and Impedance, Zs, for this 'Voltage Source'.
 
-Zc = 1/(j*w*C); % Matching capacitor impedance
-Zl = j*w*L;     % Matching inductor impedance
+% We can derive values of C and L for which the Thevenin equivalent 
+% Impedance is the complex conjugate of the Transducer Impedance.
+C = sqrt((Rg - Rt) / (Rt * Rg^2 * w^2));
+L = (Rg^2 * w * C - Xt * (Rg^2 * w^2 * C^2 + 1)) / (w + Rg^2 * w^3 * C^2);
 
-Zs = Zl + (Rg*Zc)/(Rg + Zc); % 'Voltage source' Impedance (Thevenin equivalent)
-Rs = real(Zs); Xs = imag(Zs); % Resistive and Reactive components of 'Voltage source' impedance
+% We calculate the Impedance for these components.
+ZC = 1 / (1j * w* C); 
+ZL = 1j * w * L;
 
-% The total impedance seen by the Source voltage (Thevenin equivalent) is
-% now purely real.
+% We calculate the Thevenin equivalent Impedance of the source, with its
+% resistive (Rs) and reactive (Xs) components.
+Zs = ZL + (Rg * ZC) / (Rg + ZC);
+Rs = real(Zs); 
+Xs = imag(Zs);
+
+% We calculate the Thevenin equivalent Voltage waveform vs(t), and its
+% amplitude, Vs.
+vs = real(Vg * abs(ZC / (Rg + ZC)) * exp(1j * (w * t - GENERATOR_PHASE ...
+                                                + angle(ZC / (Rg + ZC)))));
+Vs = max(vs);
 
 %%
 % To check that the power delivered to the transducer has been maximised,
 % we will determine the phase difference between the voltage and the
 % current, and calculate the maximum average power delivered to the load.
 
-vs = real(Vg*abs(Zc/(Rg + Zc))*exp(j*(w*t - GENERATOR_PHASE + angle(Zc/(Rg + Zc)))));
-Vs = max(vs);
-is = real((Vg*abs(Zc/(Rg + Zc))/abs(Zs + TRANSDUCER_IMPEDANCE))*exp(j*(w*t - GENERATOR_PHASE + angle(Zc/(Rg + Zc)) - angle(Zs + TRANSDUCER_IMPEDANCE))));
+
+is = real((Vg*abs(ZC/(Rg + ZC))/abs(Zs + TRANSDUCER_IMPEDANCE))*exp(j*(w*t - GENERATOR_PHASE + angle(ZC/(Rg + ZC)) - angle(Zs + TRANSDUCER_IMPEDANCE))));
 
 fig1 = figure(1);
 left_color = [0 0 0];
