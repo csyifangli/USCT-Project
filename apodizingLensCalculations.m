@@ -24,7 +24,7 @@
 
 RING_DIAMETER    = 0.2;  % [m]
 TEMPERATURE      = 22;   % [degC]
-LENS_SOUND_SPEED = 2495; % [m/s]
+LENS_SOUND_SPEED = 2495; % [m/s] Sound speed for Vero. 
 
 % Calculating the speed of sound in water for given temperature.
 c_water = speedSoundWater(TEMPERATURE);
