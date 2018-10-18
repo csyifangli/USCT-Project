@@ -1,13 +1,13 @@
 %% TxB X-Y Scan Analysis
 % Original Author: Elly Martin
-% Updated by Morgan Roberts
+% Updated by: Morgan Roberts
 % Date: 15/10/2018
 %
 % DESCRIPTION
-% Script to extract and save measured data, apply hydrophone sensitivity,
-% extract mag and phase of pressure at fundamental frequency then project
-% the field back to the transducer face.
-% required toolboxes: k-wave-matlab, bug-measurement-toolbox
+%     Script to extract and save measured data, apply hydrophone sensitivity,
+%     extract mag and phase of pressure at fundamental frequency then project
+%     the field back to the transducer face.
+%     required toolboxes: k-wave-matlab, bug-measurement-toolbox
 
 
 %% Section 1: Defining parameters, file names, and file paths.
@@ -40,34 +40,42 @@ elseif EXTRACT == 0
     load(FILENAME)
 end
 
-%% Section 3: 
-% extract some details from the file
-dt  = ScanData.samplePeriod(1);
-dx = ScanData.PointSpacing(1);
+%% Section 3: Truncating the CW data to a whole number of cycles.
+
+% Extracting sample period, poiunt spacing, and water temperature.
+dt          = ScanData.samplePeriod(1);
+dx          = ScanData.PointSpacing(1);
 temperature = mean(ScanData.Temperature);
 
-% cut the CW data to a whole number of cycles: 
-% calculate the number of cycles contained in the data
-pts_cycle = 1/(TRANSDUCER_FREQ*dt);
-n_cycles = round(size(ScanData.Voltage,2) / pts_cycle);
-% find the index to cut the data at to get integer cycles
-data_cut = round(n_cycles*pts_cycle);
-if data_cut > length(size(ScanData.Voltage,2))
+% Calculating the number of data points per cycle, and the number of 
+% cycles contained in the data.
+pts_cycle = 1 / (TRANSDUCER_FREQ * dt);
+n_cycles  = round(size(ScanData.Voltage, 2) / pts_cycle);
+
+% Finding the index to cut the data at to get integer cycles.
+data_cut = round(n_cycles * pts_cycle);
+if data_cut > length(size(ScanData.Voltage, 2))
     n_cycles = n_cycles - 1;
-    data_cut = round(n_cycles*pts_cycle);
+    data_cut = round(n_cycles * pts_cycle);
 end
 
-% get the hydrophone sensitivity
+%% Section 4: Extracting the pressure data from voltage data.
+
+% Extract the hydrophone sensitivity information.
 [sensitivity, ~, ~, ~] = getHydrophoneSensitivity(HYDROPHONE, SENS_PATH);
 
-% Extract the pressure data and band pass filter according to input limits
-Measured_p = applyCalibration(ScanData.Voltage(:,1:data_cut), 1/dt, sensitivity,...
-    'Dim', 2, 'FilterParam', FILTER_FREQ);
+% Extracting the band pass filtered pressure data, using the frequency 
+% response of the measurement device as defined by the sensitivity input.
+% Waveforms are first filtered in the frequency domain using the given 
+% filter parameters.
+measured_p = applyCalibration(ScanData.Voltage(:,1:data_cut), 1/dt, ...
+                        sensitivity, 'Dim', 2, 'FilterParam', FILTER_FREQ);
 
-% extract the amplitude and phase of the pressure at the driving frequency
-% of the transducer - experiment with the padding - might be enough set as
-% default (3) depending on record length of data.
-[mag, phase] = extractAmpPhase(Measured_p, 1/dt, TRANSDUCER_FREQ, 'Dim', 2, 'FFTPadding', 3);
+% Extracting the amplitude and phase of the pressure data at the transducer
+% driving frequency from the frequency spectrum, which is calculated using 
+% a windowed and zero padded FFT.                    
+[mag, phase] = extractAmpPhase(measured_p, 1/dt, TRANSDUCER_FREQ, 'Dim',...
+                                                       2, 'FFTPadding', 3);
 %%
 % make the input pressure into a complex 2D plane: 
 input_pressure = mag .* exp(1i.* phase);
