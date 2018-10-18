@@ -11,9 +11,9 @@
 %     water.
 %
 % REFERENCES:
-%     [1] speedSoundWater is part of the k-wave Matlab toolbox, and calculates 
+%     [1] speedSoundWater is part of the k-wave Toolbox, and calculates 
 %     the speed of sound in distilled water at a given temperature using 
-%     the 5th order polynomial given by Marczak(1997) "Water as a standard 
+%     the 5th order polynomial given by Marczak (1997) "Water as a standard 
 %     in the measurements of speed of sound in liquids," J. Acoust. Soc. 
 %     Am., 102, 2776-2779.
 %     [2] Jang, J., & Chang, J. H. (2016). Design and fabrication of 
