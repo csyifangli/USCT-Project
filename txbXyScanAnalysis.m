@@ -1,32 +1,46 @@
+%% TxB X-Y Scan Analysis
+% Original Author: Elly Martin
+% Updated by Morgan Roberts
+% Date: 15/10/2018
+%
+% DESCRIPTION
 % Script to extract and save measured data, apply hydrophone sensitivity,
 % extract mag and phase of pressure at fundamental frequency then project
 % the field back to the transducer face.
 % required toolboxes: k-wave-matlab, bug-measurement-toolbox
-% Date: 15/10/2018
-% Author: Elly Martin
 
+
+%% Section 1: Defining parameters, file names, and file paths.
+
+% Scan and processing parameters.
+TRANSDUCER_FREQ = 2e6;                 % [Hz]
+FILTER_FREQ     = [0.5e6, 5e6, 0.5e6]; % [Hz] (start, end, taper width)
+HYDROPHONE      = 'PA2042';            % 0.2mm Needle Hydrophone #2042
+
+% Setting directories containing hydrophone sensitivity data, scan text
+% files and scan '.ssf' file.
+SENS_PATH       = ['C:\Users\BUG\Synology Drive\Biomedical Ultrasound '...
+                            'Group\Equipment\Hydrophones\PA needle 2042\'];
+INPUT_DATA_DIR = ['C:\Users\BUG\Synology Drive\Morgan Synology Drive\'...
+    'Scanning\Scan Data\TxB\xy scan 2 10th oct'];
+
+% Setting filename to give the extracted data.
+FILENAME = 'Extract_TxB_xy_scan2_10_10_18.mat';
+
+%% Section 2: Determining whether data needs to be extracted or loaded.
+
+% Set to 1 if data needs to be extracted. Set to zero if data needs to be
+% processed and analysed.
 EXTRACT = 0;
 
-% scan and processing parameters
-TRANSDUCER_FREQ = 2e6;  % Hz
-FILTER_FREQ = [0.5e6 5e6 0.5e6]; % Hz, [start, end, taper width] SWITCHED
-HYDROPHONE = 'PA2042';  % 0.2 mm needle hydrophone 2042
-SENS_PATH = ['C:\Users\BUG\Synology Drive\Biomedical Ultrasound Group\'...
-    'Equipment\Hydrophones\PA needle 2042\'];   
-% set this to the folder containing the sensitivity data in the bug measurement toolbox 
-
-INPUT_DATA_DIR = ['C:\Users\BUG\Synology Drive\Morgan Synology Drive\'...
-    'Scanning\Scan Data\TxB\xy scan 2 10th oct'];   % folder containing scan text files and .ssf file
-FILENAME = 'Extract_TxB_xy_scan2_10_10_18.mat';  % name of the file you want to save the scan data to
-
-if EXTRACT
-% extract the data: 
-    %[~, ssf_file] = fileattrib([INPUT_DATA_DIR, '/*.ssf']);    %get the file attributes for the .ssf file
-    ScanData = extract_time_series(INPUT_DATA_DIR, INPUT_DATA_DIR, FILENAME, TRANSDUCER_FREQ, 0);
-else
-    % or load the existing ScanData file
+if EXTRACT == 1
+    ScanData = extract_time_series(INPUT_DATA_DIR, INPUT_DATA_DIR, ...
+                                             FILENAME, TRANSDUCER_FREQ, 0);
+elseif EXTRACT == 0
     load(FILENAME)
 end
+
+%% Section 3: 
 % extract some details from the file
 dt  = ScanData.samplePeriod(1);
 dx = ScanData.PointSpacing(1);
