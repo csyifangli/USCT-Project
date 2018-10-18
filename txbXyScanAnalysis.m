@@ -125,8 +125,9 @@ pressure = angularSpectrumCW(input_pressure, dx/1000, Nz, ...
  
 %% Section 7: Plotting complex pressure at the transducer face.
 
+% Plotting pressure magnitude at the transducer face.
 figure(2);
-subplot(1,2,2);
+subplot(1,2,1);
 hold on
 surf(X, Y, abs(pressure(:,:,1)), 'LineStyle', 'None');
 
@@ -159,7 +160,32 @@ xlabel('X Position [mm]');
 ylabel('Y Position [mm]');
 title('TxB Pressure Magnitude projected back to transducer face');
 axis image;
-legend([h1, h2, h3], {['Housing Boundary', 'PZT Boundary', ...
-                                                        'QWML Boundary']});
+legend([h1, h2, h3], {'Housing Boundary', 'PZT Boundary', ...
+                                                         'QWML Boundary'});
 c = colorbar('eastoutside');
 c.Label.String = 'Pressure Magnitude [Pa]';
+
+% Plotting pressure phase at the transducer face.
+subplot(1,2,2);
+hold on
+surf(X, Y, angle(pressure(:,:,1)), 'LineStyle', 'None');
+
+% Plotting circles.
+h1 = plot3(x_pla,  y_pla,  max(max(abs(pressure(:,:,1)))) * ...
+                                                ones(size(x_pla)),  'k');
+h2 = plot3(x_pzt,  y_pzt,  max(max(abs(pressure(:,:,1)))) * ...
+                                                ones(size(x_pzt)),  'k--');
+h3 = plot3(x_qwml, y_qwml, max(max(abs(pressure(:,:,1)))) * ...
+                                                ones(size(x_qwml)), 'k-.');
+hold off
+
+% Adding axes labels, title, legend, and colorbar.
+xlabel('X Position [mm]');
+ylabel('Y Position [mm]');
+title('TxB Pressure Phase projected back to transducer face');
+axis image;
+legend([h1, h2, h3], {'Housing Boundary', 'PZT Boundary', ...
+                                                         'QWML Boundary'});
+c = colorbar('eastoutside');
+c.Label.String = 'Pressure Phase [rad]';
+
