@@ -42,7 +42,7 @@ end
 
 %% Section 3: Truncating the CW data to a whole number of cycles.
 
-% Extracting sample period, poiunt spacing, and water temperature.
+% Extracting sample period, point spacing, and water temperature.
 dt          = ScanData.samplePeriod(1);
 dx          = ScanData.PointSpacing(1);
 temperature = mean(ScanData.Temperature);
@@ -76,20 +76,21 @@ measured_p = applyCalibration(ScanData.Voltage(:,1:data_cut), 1/dt, ...
 % a windowed and zero padded FFT.                    
 [mag, phase] = extractAmpPhase(measured_p, 1/dt, TRANSDUCER_FREQ, 'Dim',...
                                                        2, 'FFTPadding', 3);
-%%
-% make the input pressure into a complex 2D plane: 
-input_pressure = mag .* exp(1i.* phase);
-% reshape to make 2D
+                                                   
+%% Section 5: Plotting complex pressure in the measurement plane.
 
+% Converting the input pressure into a complex 2D plane. 
+input_pressure = mag .* exp(1j .* phase);
+
+% Reshaping the 1-D pressure and position arrays into 2-d grid.
 input_pressure = reshape(input_pressure, ScanData.NumberPoints);
-X = reshape(ScanData.posX, ScanData.NumberPoints);
-Y = reshape(ScanData.posY, ScanData.NumberPoints);
+X              = reshape(ScanData.posX,  ScanData.NumberPoints);
+Y              = reshape(ScanData.posY,  ScanData.NumberPoints);
 
-% Plotting magnitude pressure map on 2-D measurement plane.
+% Plotting pressure magnitude in the measurement plane.
 figure(1);
 subplot(1,2,1);
 surf(X, Y, abs(input_pressure), 'LineStyle', 'None');
-grid off
 xlabel('X Position [mm]');
 ylabel('Y Position [mm]');
 title(sprintf('TxB Pressure Magnitude at z = %.1fmm', ScanData.posZ(1)));
@@ -98,40 +99,67 @@ view(2);
 c = colorbar('eastoutside');
 c.Label.String = 'Pressure Magnitude [Pa]';
 
+% Plotting pressure phase in the measurement plane.
+subplot(1,2,2);
+surf(X, Y, angle(input_pressure), 'LineStyle', 'None');
+xlabel('X Position [mm]');
+ylabel('Y Position [mm]');
+title(sprintf('TxB Pressure Phase at z = %.1fmm', ScanData.posZ(1)));
+axis image;
+view(2);
+c = colorbar('eastoutside');
+c.Label.String = 'Pressure Phase [rad]';
 
-% calculate Nz based on the point spacing dx, and the distance to the
-% transducer - you know this already, or you can extract it from the posZ
-% field in ScanData.
-Nz = floor(ScanData.posZ(1)/dx);
+%% Section 6: Projecting pressure data back to the transducer face.
 
+% Calculating number of backward projections needed using point spacing.
+Nz = floor(ScanData.posZ(1) / dx);
+
+% Calculating the sound speed in water at the given temperature
 c0 = speedSoundWater(temperature);
-% calculate the pressure at (or near) the transducer face:
-pressure = angularSpectrumCW(input_pressure, dx/1000, Nz, TRANSDUCER_FREQ, c0, 'Reverse', true);
- 
-% the output will be a complex 2D plane. Have a look at both the magnitude
-% and phase (mag and angle) and plot.
 
-%figure(2);
+% Projecting the 2-D measurement plane onto a 3D volume using the angular 
+% spectrum method. 
+pressure = angularSpectrumCW(input_pressure, dx/1000, Nz, ...
+                                     TRANSDUCER_FREQ, c0, 'Reverse', true);
+ 
+%% Section 7: Plotting complex pressure at the transducer face.
+
+figure(2);
 subplot(1,2,2);
 hold on
 surf(X, Y, abs(pressure(:,:,1)), 'LineStyle', 'None');
-t=0:0.01:2*pi;
-% Drawing Reference circles with radii
-xPZT = 19*sin(t);
-yPZT = 19*cos(t);
-xPLA = 21*sin(t);
-yPLA = 21*cos(t);
-xQWML = 16.65*sin(t);
-yQWML = 16.65*cos(t);
-h1 = plot3(xPLA, yPLA, max(max(abs(pressure(:,:,1))))*ones(size(xPLA)), 'k');
-h2 = plot3(xPZT, yPZT, max(max(abs(pressure(:,:,1))))*ones(size(xPZT)), 'k--');
-h3 = plot3(xQWML, yQWML, max(max(abs(pressure(:,:,1))))*ones(size(xQWML)), 'k-.');
+
+% Drawing reference circles with radii matched to transducer geometry.
+t = 0:0.01:(2 * pi);
+
+% PZT Element Boundary.
+x_pzt = 19*sin(t);
+y_pzt = 19*cos(t);
+
+% Transducer Housing Boundary.
+x_pla = 21*sin(t);
+y_pla = 21*cos(t);
+
+% Quarter-Wavelength-Matching-Layer Boundary.
+x_qwml = 16.65*sin(t);
+y_qwml = 16.65*cos(t);
+
+% Plotting circles.
+h1 = plot3(x_pla,  y_pla,  max(max(abs(pressure(:,:,1)))) * ...
+                                                ones(size(x_pla)),  'k');
+h2 = plot3(x_pzt,  y_pzt,  max(max(abs(pressure(:,:,1)))) * ...
+                                                ones(size(x_pzt)),  'k--');
+h3 = plot3(x_qwml, y_qwml, max(max(abs(pressure(:,:,1)))) * ...
+                                                ones(size(x_qwml)), 'k-.');
 hold off
+
+% Adding axes labels, title, legend, and colorbar.
 xlabel('X Position [mm]');
 ylabel('Y Position [mm]');
 title('TxB Pressure Magnitude projected back to transducer face');
 axis image;
-legend([h1, h2, h3], {'Housing Boundary', 'PZT Boundary', 'QWML Boundary'});
+legend([h1, h2, h3], {['Housing Boundary', 'PZT Boundary', ...
+                                                        'QWML Boundary']});
 c = colorbar('eastoutside');
 c.Label.String = 'Pressure Magnitude [Pa]';
-
