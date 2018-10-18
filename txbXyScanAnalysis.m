@@ -4,10 +4,31 @@
 % Date: 15/10/2018
 %
 % DESCRIPTION
-%     Script to extract and save measured data, apply hydrophone sensitivity,
-%     extract mag and phase of pressure at fundamental frequency then project
-%     the field back to the transducer face.
-%     required toolboxes: k-wave-matlab, bug-measurement-toolbox
+%     A script to extract and save measured data, apply hydrophone 
+%     sensitivity, extract the magnitude and phase of the pressure at 
+%     the transducer driving frequency then project the field back to the 
+%     transducer face. The pressure magnitude and phase at the driving
+%     frequency are plotted in the measurement plane, and at the transducer
+%     face.
+%
+% REFERENCES
+%     [1] extract_time_series, and getHydrophoneSensitivity are from the 
+%     BUG Measurement Toolbox, and are written by Elly Martin.
+%     [2] applyCalibration is from the BUG Measurement Toolbox and the 
+%     k-wave Toolbox, and is written by Elly Martin and Bradley Treeby.
+%     [3] extractAmpPhase is from the k-wave Toolbox, and is written by 
+%     Bradley Treeby and Yan To Ling.
+%     [4] speedSoundWater is part of the k-wave Toolbox, and is written by
+%     Bradley Treeby. It calculates the speed of sound in distilled water 
+%     at a given temperature using the 5th order polynomial given by 
+%     Marczak (1997) "Water as a standard in the measurements of speed of 
+%     sound in liquids," J. Acoust. Soc. Am., 102, 2776-2779. 
+%     [5] angularSprectrumCW is part of the k-wave Toolbox, and is written
+%     by Bradley Treeby. The implementation follows the spectral propagator
+%     with angular restriction described inZeng, X., & McGough, R. J. 
+%     (2008). Evaluation of the angular spectrum approach for simulations 
+%     of near-field pressures. The Journal of the Acoustical Society of 
+%     America, 123(1), 68-76.
 
 
 %% Section 1: Defining parameters, file names, and file paths.
