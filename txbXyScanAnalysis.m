@@ -25,7 +25,7 @@
 %     sound in liquids," J. Acoust. Soc. Am., 102, 2776-2779. 
 %     [5] angularSprectrumCW is part of the k-wave Toolbox, and is written
 %     by Bradley Treeby. The implementation follows the spectral propagator
-%     with angular restriction described inZeng, X., & McGough, R. J. 
+%     with angular restriction described in: Zeng, X., & McGough, R. J. 
 %     (2008). Evaluation of the angular spectrum approach for simulations 
 %     of near-field pressures. The Journal of the Acoustical Society of 
 %     America, 123(1), 68-76.
