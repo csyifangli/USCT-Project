@@ -121,7 +121,7 @@ centre_freq = mean([i_trailing, i_leading]);
 
 % Calculating and displaying the bandwidth as a percentage.
 bandwidth = (fwhm_val / centre_freq) * 100;
-fprintf('The centre frequency is %.2fMHz.\nThe bandwidth is %.f%%',...
+fprintf('The centre frequency is %.2fMHz.\nThe bandwidth is %.f%%\n',...
                                             centre_freq / 1e6, bandwidth);
 
 %% Section 6: Plotting.
@@ -157,19 +157,19 @@ ylabel('Voltage [V]');
 yyaxis right
 plot(pad_time, win, 'b');
 xlabel('Time [s]');
-title(sprintf('Front-Padded and Gaussian Windowed (std dev = %.2f)', ...
-                                                              filt_param));
+title(sprintf(['Front-Padded and Gaussian-Windowed signal '...
+                                          '(Std Dev = %.2f)'],filt_param));
 
 % Plotting Amplitude Spectrum.
 subplot(2,2,4);
 hold on
 plot(freq / 1e6, amp_spect, 'k');
 h = plot([i_leading, i_trailing] / 1e6, [0.5 * f_max, 0.5 * f_max], 'k--');
-g = plot(centre_freq / 1e6, amp_spect(k1 + ((k2 - k1) / 2)), 'kx ');
+g = plot(centre_freq / 1e6, amp_spect(round(k1 + ((k2 - k1) / 2))), 'kx ');
+legend([h, g], {sprintf('FWHM Bandwidth = %.f%%', bandwidth), ...
+               sprintf('Centre Frequency = %.2fMHz%', centre_freq / 1e6)});
+hold off
 xlabel('Frequency [MHz]');
 ylabel('FFT Amplitude');
 title('Amplitude Spectrum');
 xlim([0, 5]);
-legend([h, g], {sprintf('FWHM Bandwidth = %.f%%', bandwidth), ...
-               sprintf('Centre Frequency = %.2fMHz%', centre_freq / 1e6)});
-hold off
