@@ -3,8 +3,22 @@
 % Date: 19/10/2018
 %
 % DESCRIPTION
+%     A script that extracts data from a raw oscilliscope data file,
+%     creates a time series starting at zero, bandpass filters the voltage
+%     signal with given parameters, pads the signal to centre the impulse
+%     response in the time series, applies a Gaussian window function with
+%     given parameters, and plots the amplitude spectrum of the impulse
+%     response. There are two available data sets, which contain the
+%     impulse response of 'TxB' to a low energy, and high energy, optically
+%     generated ultrasound source (OGUS) pulse. The script also calculates
+%     both the full-width-half-maximum bandwidth as a percentage and the
+%     centre frequency, and plots these for reference.
 %
 % REFERENCES
+%    [1] applyFilter is from the k-wave Toolbox, and was written by Ben
+%    Cox and Bradley Treeby. 
+%    [2] getWin, spect, and fwhm are from the k-wave Toolbox, and were
+%    written by Bradley Treeby.
 %
 %% Section 1: Defining parameters and reading files.
 
@@ -44,11 +58,11 @@ filt_volt = applyFilter(volt, fs, band_pass, 'BandPass');
 %% Section 3: Padding to align impulse with centre of window function.
 
 % Finding maximum of impulse response.
-k1    = find(abs(filt_volt) == max(abs(filt_volt)));
+index = find(abs(filt_volt) == max(abs(filt_volt)));
 
 % Forward-Padding to align maximum with the centre.
-pad_volt = [zeros(1, length(filt_volt) - (2 * k1) - 1), filt_volt];
-pad_time = 0:dt:dt * ((2 * (length(filt_volt) - 1)) - (2 * k1));
+pad_volt = [zeros(1, length(filt_volt) - (2 * index) - 1), filt_volt];
+pad_time = 0:dt:dt * ((2 * (length(filt_volt) - 1)) - (2 * index));
 
 % Applying Gaussian window function with std dev parameter.
 filt_param = 0.05;
@@ -107,8 +121,8 @@ centre_freq = mean([i_trailing, i_leading]);
 
 % Calculating and displaying the bandwidth as a percentage.
 bandwidth = (fwhm_val / centre_freq) * 100;
-disp(sprintf('The centre frequency is %.2fMHz.\nThe bandwidth is %.f%%',...
-                                            centre_freq / 1e6, bandwidth));
+fprintf('The centre frequency is %.2fMHz.\nThe bandwidth is %.f%%',...
+                                            centre_freq / 1e6, bandwidth);
 
 %% Section 6: Plotting.
 
